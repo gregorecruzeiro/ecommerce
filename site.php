@@ -1,5 +1,4 @@
 <?php 
-
 use \Hcode\Page;
 use \Hcode\Model\Product;
 use \Hcode\Model\Category;
@@ -8,7 +7,6 @@ use \Hcode\Model\Address;
 use \Hcode\Model\User;
 use \Hcode\Model\Order;
 use \Hcode\Model\OrderStatus;
-
 $app->get('/', function() {
 	$products = Product::listAll();
 	$page = new Page();
@@ -16,7 +14,6 @@ $app->get('/', function() {
 		'products'=>Product::checkList($products)
 	]);
 });
-
 $app->get("/categories/:idcategory", function($idcategory){
 	$page = (isset($_GET['page'])) ? (int)$_GET['page'] : 1;
 	$category = new Category();
@@ -36,7 +33,6 @@ $app->get("/categories/:idcategory", function($idcategory){
 		'pages'=>$pages
 	]);
 });
-
 $app->get("/products/:desurl", function($desurl){
 	$product = new Product();
 	$product->getFromURL($desurl);
@@ -46,7 +42,6 @@ $app->get("/products/:desurl", function($desurl){
 		'categories'=>$product->getCategories()
 	]);
 });
-
 $app->get("/cart", function(){
 	$cart = Cart::getFromSession();
 	$page = new Page();
@@ -56,7 +51,6 @@ $app->get("/cart", function(){
 		'error'=>Cart::getMsgError()
 	]);
 });
-
 $app->get("/cart/:idproduct/add", function($idproduct){
 	$product = new Product();
 	$product->get((int)$idproduct);
@@ -69,7 +63,6 @@ $app->get("/cart/:idproduct/add", function($idproduct){
 	header("Location: /cart");
 	exit;
 });
-
 $app->get("/cart/:idproduct/minus", function($idproduct){
 	$product = new Product();
 	$product->get((int)$idproduct);
@@ -78,7 +71,6 @@ $app->get("/cart/:idproduct/minus", function($idproduct){
 	header("Location: /cart");
 	exit;
 });
-
 $app->get("/cart/:idproduct/remove", function($idproduct){
 	$product = new Product();
 	$product->get((int)$idproduct);
@@ -87,14 +79,12 @@ $app->get("/cart/:idproduct/remove", function($idproduct){
 	header("Location: /cart");
 	exit;
 });
-
 $app->post("/cart/freight", function(){
 	$cart = Cart::getFromSession();
 	$cart->setFreight($_POST['zipcode']);
 	header("Location: /cart");
 	exit;
 });
-
 $app->get("/checkout", function(){
 	User::verifyLogin(false);
 	$address = new Address();
@@ -123,7 +113,6 @@ $app->get("/checkout", function(){
 		'error'=>Address::getMsgError()
 	]);
 });
-
 $app->post("/checkout", function(){
 	User::verifyLogin(false);
 	if (!isset($_POST['zipcode']) || $_POST['zipcode'] === '') {
@@ -163,20 +152,19 @@ $app->post("/checkout", function(){
 	$address->setData($_POST);
 	$address->save();
 	$cart = Cart::getFromSession();
-	$totals = $cart->getCalculateTotal();
+	$cart->getCalculateTotal();
 	$order = new Order();
 	$order->setData([
 		'idcart'=>$cart->getidcart(),
 		'idaddress'=>$address->getidaddress(),
 		'iduser'=>$user->getiduser(),
 		'idstatus'=>OrderStatus::EM_ABERTO,
-		'vltotal'=>$totals['vlprice'] + $cart->getvlfreight()
+		'vltotal'=>$cart->getvltotal()
 	]);
 	$order->save();
 	header("Location: /order/".$order->getidorder());
 	exit;
 });
-
 $app->get("/login", function(){
 	$page = new Page();
 	$page->setTpl("login", [
@@ -185,7 +173,6 @@ $app->get("/login", function(){
 		'registerValues'=>(isset($_SESSION['registerValues'])) ? $_SESSION['registerValues'] : ['name'=>'', 'email'=>'', 'phone'=>'']
 	]);
 });
-
 $app->post("/login", function(){
 	try {
 		User::login($_POST['login'], $_POST['password']);
@@ -195,13 +182,11 @@ $app->post("/login", function(){
 	header("Location: /checkout");
 	exit;
 });
-
 $app->get("/logout", function(){
 	User::logout();
 	header("Location: /login");
 	exit;
 });
-
 $app->post("/register", function(){
 	$_SESSION['registerValues'] = $_POST;
 	if (!isset($_POST['name']) || $_POST['name'] == '') {
@@ -238,23 +223,19 @@ $app->post("/register", function(){
 	header('Location: /checkout');
 	exit;
 });
-
 $app->get("/forgot", function() {
 	$page = new Page();
 	$page->setTpl("forgot");	
 });
-
 $app->post("/forgot", function(){
 	$user = User::getForgot($_POST["email"], false);
 	header("Location: /forgot/sent");
 	exit;
 });
-
 $app->get("/forgot/sent", function(){
 	$page = new Page();
 	$page->setTpl("forgot-sent");	
 });
-
 $app->get("/forgot/reset", function(){
 	$user = User::validForgotDecrypt($_GET["code"]);
 	$page = new Page();
@@ -263,10 +244,9 @@ $app->get("/forgot/reset", function(){
 		"code"=>$_GET["code"]
 	));
 });
-
 $app->post("/forgot/reset", function(){
 	$forgot = User::validForgotDecrypt($_POST["code"]);	
-	User::setForgotUsed($forgot["idrecovery"]);
+	User::setFogotUsed($forgot["idrecovery"]);
 	$user = new User();
 	$user->get((int)$forgot["iduser"]);
 	$password = User::getPasswordHash($_POST["password"]);
@@ -274,7 +254,6 @@ $app->post("/forgot/reset", function(){
 	$page = new Page();
 	$page->setTpl("forgot-reset-success");
 });
-
 $app->get("/profile", function(){
 	User::verifyLogin(false);
 	$user = User::getFromSession();
@@ -285,7 +264,6 @@ $app->get("/profile", function(){
 		'profileError'=>User::getError()
 	]);
 });
-
 $app->post("/profile", function(){
 	User::verifyLogin(false);
 	if (!isset($_POST['desperson']) || $_POST['desperson'] === '') {
@@ -300,7 +278,7 @@ $app->post("/profile", function(){
 	}
 	$user = User::getFromSession();
 	if ($_POST['desemail'] !== $user->getdesemail()) {
-		if (User::checkLoginExist($_POST['desemail']) === true) {
+		if (User::checkLoginExists($_POST['desemail']) === true) {
 			User::setError("Este endereço de e-mail já está cadastrado.");
 			header('Location: /profile');
 			exit;
@@ -310,13 +288,11 @@ $app->post("/profile", function(){
 	$_POST['despassword'] = $user->getdespassword();
 	$_POST['deslogin'] = $_POST['desemail'];
 	$user->setData($_POST);
-	$user->update();
-	$_SESSION[User::SESSION] = $user->getValues();
+	$user->save();
 	User::setSuccess("Dados alterados com sucesso!");
 	header('Location: /profile');
 	exit;
 });
-
 $app->get("/order/:idorder", function($idorder){
 	User::verifyLogin(false);
 	$order = new Order();
@@ -335,6 +311,7 @@ $app->get("/boleto/:idorder", function($idorder){
 	$taxa_boleto = 5.00;
 	$data_venc = date("d/m/Y", time() + ($dias_de_prazo_para_pagamento * 86400));  // Prazo de X dias OU informe data: "13/04/2006"; 
 	$valor_cobrado = formatPrice($order->getvltotal()); // Valor - REGRA: Sem pontos na milhar e tanto faz com "." ou "," ou com 1 ou 2 ou sem casa decimal
+	$valor_cobrado = str_replace(".", "", $valor_cobrado);
 	$valor_cobrado = str_replace(",", ".",$valor_cobrado);
 	$valor_boleto=number_format($valor_cobrado+$taxa_boleto, 2, ',', '');
 	$dadosboleto["nosso_numero"] = $order->getidorder();  // Nosso numero - REGRA: Máximo de 8 caracteres!
@@ -363,9 +340,9 @@ $app->get("/boleto/:idorder", function($idorder){
 	$dadosboleto["especie_doc"] = "";
 	// ---------------------- DADOS FIXOS DE CONFIGURAÇÃO DO SEU BOLETO --------------- //
 	// DADOS DA SUA CONTA - ITAÚ
-	$dadosboleto["agencia"] = "7830"; // Num da agencia, sem digito
-	$dadosboleto["conta"] = "13378";	// Num da conta, sem digito
-	$dadosboleto["conta_dv"] = "6"; 	// Digito do Num da conta
+	$dadosboleto["agencia"] = "1690"; // Num da agencia, sem digito
+	$dadosboleto["conta"] = "48781";	// Num da conta, sem digito
+	$dadosboleto["conta_dv"] = "2"; 	// Digito do Num da conta
 	// DADOS PERSONALIZADOS - ITAÚ
 	$dadosboleto["carteira"] = "175";  // Código da Carteira: pode ser 175, 174, 104, 109, 178, ou 157
 	// SEUS DADOS
@@ -379,5 +356,26 @@ $app->get("/boleto/:idorder", function($idorder){
 	require_once($path . "funcoes_itau.php");
 	require_once($path . "layout_itau.php");
 });
-
-?>
+$app->get("/profile/orders", function(){
+	User::verifyLogin(false);
+	$user = User::getFromSession();
+	$page = new Page();
+	$page->setTpl("profile-orders", [
+		'orders'=>$user->getOrders()
+	]);
+});
+$app->get("/profile/orders/:idorder", function($idorder){
+	User::verifyLogin(false);
+	$order = new Order();
+	$order->get((int)$idorder);
+	$cart = new Cart();
+	$cart->get((int)$order->getidcart());
+	$cart->getCalculateTotal();
+	$page = new Page();
+	$page->setTpl("profile-orders-detail", [
+		'order'=>$order->getValues(),
+		'cart'=>$cart->getValues(),
+		'products'=>$cart->getProducts()
+	]);	
+});
+ ?>
