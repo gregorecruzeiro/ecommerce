@@ -89,7 +89,7 @@ $app->get("/checkout", function(){
 	User::verifyLogin(false);
 	$address = new Address();
 	$cart = Cart::getFromSession();
-	if (isset($_GET['zipcode'])) {
+	if (!isset($_GET['zipcode'])) {
 		$_GET['zipcode'] = $cart->getdeszipcode();
 	}
 	if (isset($_GET['zipcode'])) {
@@ -99,6 +99,7 @@ $app->get("/checkout", function(){
 		$cart->getCalculateTotal();
 	}
 	if (!$address->getdesaddress()) $address->setdesaddress('');
+	if (!$address->getdesnumber()) $address->setdesnumber('');
 	if (!$address->getdescomplement()) $address->setdescomplement('');
 	if (!$address->getdesdistrict()) $address->setdesdistrict('');
 	if (!$address->getdescity()) $address->setdescity('');
