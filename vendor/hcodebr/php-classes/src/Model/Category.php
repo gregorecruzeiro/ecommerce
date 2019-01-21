@@ -127,7 +127,7 @@ class Category extends Model {
 		]);
 	}
 
-	public static function getPage($page = 1, $itemsPerPage = 1)
+	public static function getPage($page = 1, $itemsPerPage = 10)
 	{
 		$start = ($page - 1) * $itemsPerPage;
 		$sql = new Sql();
@@ -145,7 +145,7 @@ class Category extends Model {
 		];
 	}
 
-	public static function getPageSearch($search, $page = 1, $itemsPerPage = 1)
+	public static function getPageSearch($search, $page = 1, $itemsPerPage = 10)
 	{
 		$start = ($page - 1) * $itemsPerPage;
 		$sql = new Sql();
