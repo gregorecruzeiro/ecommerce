@@ -11,6 +11,8 @@
     <input type="hidden" name="quantity_{$counter+1}" value="{$value.nrqtd}">
     {/loop}
 
+    <input type="hidden" name="shipping_1" value="{$cart.vlfreight}">
+
     <input type="hidden" name="currency_code" value="BRL">  
 
     <input type="hidden" name="email" value="{$order.desemail}">
