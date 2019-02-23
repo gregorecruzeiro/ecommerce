@@ -12,7 +12,7 @@
         <input name="itemWeight{$counter+1}" type="hidden" value="{$value.vlweight*1000}">  
         {/loop}
 
-        <input type="hidden" name="itemShippingCost1" value="{$cart.vlfreight}">
+        <input type="hidden" name="itemShippingCost1" value="{$order.vlfreight}">
         
         <input name="reference" type="hidden" value="{$order.idorder}">  
 
